@@ -1,15 +1,28 @@
 ---
-import { SITE_TITLE } from '../consts';
+import { Image } from 'astro:assets';
 import HeaderLink from './HeaderLink.astro';
+
+import logoChronoOdyssey from '../assets/logo.png';
 ---
 
 <header>
 	<nav>
-		<h2><a href="/">{SITE_TITLE}</a></h2>
+			<h2>
+				<a href="/" aria-label="Ir a la portada de Noticias Chrono Odyssey">
+					<Image
+						src={logoChronoOdyssey}
+						alt="Logo Chrono Odyssey"
+						width={48}
+						height={48}
+						format="png"
+						loading="lazy"
+						style="display:inline-block;vertical-align:middle;"
+					/>
+				</a>
+			</h2>
 		<div class="internal-links">
-			<HeaderLink href="/">Home</HeaderLink>
-			<HeaderLink href="/blog">Blog</HeaderLink>
-			<HeaderLink href="/about">About</HeaderLink>
+			<HeaderLink href="/noticias">Noticias</HeaderLink>
+			<HeaderLink href="/contacto">Contacto</HeaderLink>
 		</div>
 		<div class="social-links">
 			<a href="https://m.webtoo.ls/@astro" target="_blank">
