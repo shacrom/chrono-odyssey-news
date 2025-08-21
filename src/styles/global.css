@@ -5,6 +5,19 @@
  */
 @import "tailwindcss";
 
+
+@theme {
+  --color-gold: #bfa76a;
+  --color-bronze: #7c6a4a;
+  --color-dark: #181a1f;
+  --color-graydeep: #23262b;
+  --color-silver: #cfd8dc;
+  --color-blue: #2337ff;
+  --color-petrol: #2a3a4d;
+  --color-warmwhite: #f5f3e7;
+}
+
+
 :root {
   --accent: #2337ff;
   --accent-dark: #000d8a;
