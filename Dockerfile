@@ -19,7 +19,7 @@ WORKDIR /app
 # Copiar la build del contenedor builder
 COPY --from=builder /app ./
 
-EXPOSE 3000
+EXPOSE 4321
 
 # Comando para iniciar Astro en modo preview (producción)
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4321"]
