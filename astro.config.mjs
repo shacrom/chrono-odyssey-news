@@ -13,5 +13,11 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    preview: {
+      allowedHosts: ['shacrom.com', 'www.shacrom.com'],
+    },
+    server: {
+      host: '0.0.0.0',
+    },
   },
 });
