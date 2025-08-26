@@ -20,4 +20,6 @@ WORKDIR /app
 COPY --from=builder /app ./
 
 EXPOSE 3000
-CMD ["npm", "run", "preview"]
+
+# Comando para iniciar Astro en modo preview (producción)
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "3000"]
