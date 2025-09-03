@@ -7,11 +7,50 @@ import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 
+// Configuración de Strapi desde variables de entorno
+const STRAPI_URL = import.meta.env.STRAPI_URL || 'http://localhost:1337';
 
+// Obtener el token JWT de la cookie (gestionado por el middleware)
+const token = Astro.cookies.get('strapi_jwt')?.value;
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+// Función para obtener noticias usando el token de la cookie
+async function fetchNoticias() {
+  if (!token) {
+    console.error('No se pudo obtener el token de Strapi desde la cookie');
+    return [];
+  }
+
+  try {
+    const response = await fetch(`${STRAPI_URL}/noticias`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Error obteniendo noticias');
+    }
+
+    const noticias = await response.json();
+    return noticias;
+  } catch (error) {
+    console.error('Error obteniendo noticias:', error);
+    return [];
+  }
+}
+
+// Obtener noticias de Strapi
+const noticias = await fetchNoticias();
+
+// Mapear a formato compatible con el template existente
+const posts = noticias.map((noticia: any) => ({
+  id: noticia.slug || noticia.id,
+  data: {
+    title: noticia.title,
+    pubDate: new Date(noticia.publishedAt || noticia.published_at),
+    heroImage: noticia.cover_image ? `${STRAPI_URL}${noticia.cover_image.url}` : null
+  }
+})).sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <!doctype html>
@@ -94,7 +133,7 @@ const posts = (await getCollection('blog')).sort(
 			<section>
 				<ul>
 					{
-						posts.map((post) => (
+						posts.map((post: any) => (
 							<li>
 								<a href={`/noticias/${post.id}/`}>
 									{post.data.heroImage && (

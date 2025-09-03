@@ -1,20 +1,76 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 
-export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
-}
-type Props = CollectionEntry<'blog'>;
+// Configuración de Strapi
+const STRAPI_URL = import.meta.env.STRAPI_URL || 'http://localhost:1337';
 
-const post = Astro.props;
-const { Content } = await render(post);
+// Obtener el token JWT de la cookie (gestionado por el middleware)
+const token = Astro.cookies.get('strapi_jwt')?.value;
+
+// Función para obtener una noticia específica
+async function fetchNoticia(slug: string) {
+  if (!token) {
+    console.error('No se pudo obtener el token de Strapi desde la cookie');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${STRAPI_URL}/noticias?slug=${slug}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Error obteniendo noticia');
+    }
+
+    const noticias = await response.json();
+    return noticias.length > 0 ? noticias[0] : null;
+  } catch (error) {
+    console.error('Error obteniendo noticia:', error);
+    return null;
+  }
+}
+
+// Obtener el slug de la URL
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/noticias');
+}
+
+// Obtener la noticia
+const noticia = await fetchNoticia(slug);
+
+if (!noticia) {
+  return Astro.redirect('/noticias');
+}
+
+// Mapear datos de Strapi al formato esperado por BlogPost
+const postData = {
+  title: noticia.title,
+  description: noticia.summary || '',
+  pubDate: new Date(noticia.publishedAt || noticia.published_at),
+  heroImage: undefined, // Por ahora deshabilitado hasta resolver el manejo de imágenes
+};
+
+// Obtenemos la URL de la imagen para mostrarla manualmente si existe
+const imageUrl = noticia.cover_image ? `${STRAPI_URL}${noticia.cover_image.url}` : null;
 ---
 
-<BlogPost {...post.data}>
-	<Content />
+<BlogPost {...postData}>
+  <!-- Mostrar imagen manualmente si existe -->
+  {imageUrl && (
+    <div class="hero-image-custom mb-8">
+      <img 
+        src={imageUrl} 
+        alt={noticia.title}
+        class="w-full h-64 object-cover rounded-lg shadow-lg"
+      />
+    </div>
+  )}
+  
+  <!-- Renderizar el contenido de la noticia -->
+  <div set:html={noticia.content} />
 </BlogPost>
