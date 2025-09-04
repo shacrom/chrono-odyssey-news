@@ -11,9 +11,6 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://shacrom.com',
   output: 'server', // Modo servidor para todas las páginas
-  adapter: node({
-    mode: 'standalone'
-  }),
   integrations: [mdx(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
