@@ -47,7 +47,7 @@ const posts = noticias.map((noticia: any) => ({
   data: {
     title: noticia.title,
     pubDate: new Date(noticia.publishedAt || noticia.published_at),
-    heroImage: noticia.cover_image ? `${STRAPI_URL}${noticia.cover_image.url}` : null
+    heroImage: noticia.cover_image ? `${noticia.cover_image}` : null
   }
 })).sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
