@@ -32,7 +32,14 @@ async function fetchRecentNoticias() {
     }
 
     const noticias = await response.json();
-    return noticias.slice(0, 8); // Obtener las 8 más recientes
+    // Ordenar por fecha de publicación (más recientes primero) y obtener las 8 más recientes
+    return noticias
+      .sort((a: any, b: any) => {
+        const dateA = new Date(a.publishedAt || a.published_at);
+        const dateB = new Date(b.publishedAt || b.published_at);
+        return dateB.getTime() - dateA.getTime();
+      })
+      .slice(0, 8);
   } catch (error) {
     console.error('Error obteniendo noticias recientes:', error);
     return [];
@@ -242,7 +249,7 @@ const recentNoticias = await fetchRecentNoticias();
 											)}
 											<div class="flex-1 min-w-0">
 												<div class="text-xs text-silver/70 uppercase tracking-wide mb-1">
-													{noticia.category || 'GENERAL'}
+													<FormattedDate date={new Date(noticia.publishedAt || noticia.published_at)} />
 												</div>
 												<h3 class="text-white text-sm font-medium leading-tight line-clamp-2">
 													{noticia.title}
