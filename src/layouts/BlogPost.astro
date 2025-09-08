@@ -9,6 +9,37 @@ import Header from '../components/Header.astro';
 type Props = CollectionEntry<'blog'>['data'];
 
 const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+
+// Configuración de Strapi para obtener artículos recientes
+const STRAPI_URL = import.meta.env.STRAPI_URL || 'http://localhost:1337';
+const token = Astro.cookies.get('strapi_jwt')?.value;
+
+// Función para obtener noticias recientes
+async function fetchRecentNoticias() {
+  if (!token) {
+    return [];
+  }
+
+  try {
+    const response = await fetch(`${STRAPI_URL}/noticias`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const noticias = await response.json();
+    return noticias.slice(0, 8); // Obtener las 8 más recientes
+  } catch (error) {
+    console.error('Error obteniendo noticias recientes:', error);
+    return [];
+  }
+}
+
+const recentNoticias = await fetchRecentNoticias();
 ---
 
 <html lang="en">
@@ -30,8 +61,8 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				box-shadow: 0 8px 32px rgba(191, 167, 106, 0.2);
 			}
 			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
+				width: 100%;
+				max-width: 100%;
 				margin: auto;
 				padding: 1em;
 				color: #e5e7eb; /* text-gray-200 equivalent */
@@ -96,6 +127,30 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				font-style: italic;
 				color: #d1d5db; /* text-gray-300 */
 			}
+			
+			/* Estilos para la sidebar */
+			.line-clamp-2 {
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+			}
+			
+			/* Responsive: ocultar sidebar en pantallas pequeñas */
+			@media (max-width: 1023px) {
+				main {
+					justify-content: center !important;
+					max-width: 4xl !important;
+				}
+				
+				article {
+					max-width: none !important;
+				}
+				
+				.prose {
+					max-width: 100% !important;
+				}
+			}
 		</style>
 	</head>
 
@@ -124,29 +179,82 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		<!-- Contenido principal con z-index superior -->
 		<div class="relative z-10">
 			<Header />
-			<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
+			<main class="flex justify-center max-w-none mx-auto px-4 gap-6">
+				<!-- Artículo principal -->
+				<article class="w-full max-w-4xl">
+					<!-- Enlace volver a noticias -->
+					<div class="mb-6">
+						<a 
+							href="/noticias" 
+							class="inline-flex items-center text-silver/70 hover:text-gold transition-colors text-sm"
+						>
+							<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+							</svg>
+							VOLVER A NOTICIAS
+						</a>
 					</div>
-					<slot />
-				</div>
-			</article>
+					
+					<div class="hero-image">
+						{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+					</div>
+					<div class="prose">
+						<div class="title">
+							<div class="date">
+								<FormattedDate date={pubDate} />
+								{
+									updatedDate && (
+										<div class="last-updated-on">
+											Last updated on <FormattedDate date={updatedDate} />
+										</div>
+									)
+								}
+							</div>
+							<h1>{title}</h1>
+							<hr />
+						</div>
+						<slot />
+					</div>
+				</article>
+
+				<!-- Sidebar de artículos recientes -->
+				<aside class="w-80 flex-shrink-0 hidden lg:block">
+					<div class="sticky top-4">
+						<div class="bg-black/20 backdrop-blur-md rounded-xl border border-white/10 p-6">
+							<h2 class="text-gold text-xl font-bold mb-6 text-center uppercase tracking-wide">
+								Artículos Recientes
+							</h2>
+							<div class="space-y-4">
+								{recentNoticias.map((noticia: any) => (
+									<a 
+										href={`/noticias/${noticia.slug || noticia.id}/`}
+										class="block p-3 rounded-lg hover:bg-white/5 transition-colors border border-white/5 hover:border-gold/30"
+									>
+										<div class="flex gap-3">
+											{noticia.cover_image && (
+												<div class="w-16 h-12 flex-shrink-0">
+													<img 
+														src={noticia.cover_image} 
+														alt=""
+														class="w-full h-full object-cover rounded"
+													/>
+												</div>
+											)}
+											<div class="flex-1 min-w-0">
+												<div class="text-xs text-silver/70 uppercase tracking-wide mb-1">
+													{noticia.category || 'GENERAL'}
+												</div>
+												<h3 class="text-white text-sm font-medium leading-tight line-clamp-2">
+													{noticia.title}
+												</h3>
+											</div>
+										</div>
+									</a>
+								))}
+							</div>
+						</div>
+					</div>
+				</aside>
 			</main>
 			<Footer />
 		</div>
