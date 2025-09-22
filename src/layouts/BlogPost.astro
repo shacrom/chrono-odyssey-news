@@ -161,6 +161,11 @@ const recentNoticias = await fetchRecentNoticias();
 				margin-bottom: 0.3em;
 			}
 			
+			/* Asegurar espacio suficiente para anuncios laterales */
+			aside {
+				min-width: 300px !important;
+			}
+			
 			/* Responsive: ocultar sidebar en pantallas pequeñas */
 			@media (max-width: 1023px) {
 				main {
@@ -245,6 +250,11 @@ const recentNoticias = await fetchRecentNoticias();
 							<hr />
 						</div>
 						<slot />
+						
+						<!-- Banner cuadrado al final del artículo -->
+						<div class="mt-8 text-center">
+							<AdBanner type="square" className="square inline-block" />
+						</div>
 					</div>
 				</article>
 

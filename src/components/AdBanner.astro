@@ -20,6 +20,27 @@ const {
 	className = "" 
 } = Astro.props;
 
+// Configuraciones específicas por tipo
+const typeConfig = {
+	horizontal: {
+		format: "auto",
+		responsive: "true",
+		style: "display:block; width: 100%; min-height: 90px;"
+	},
+	square: {
+		format: "auto", 
+		responsive: "true",
+		style: "display:block; width: 300px; height: 250px;"
+	},
+	vertical: {
+		format: "auto",
+		responsive: "true", 
+		style: "display:block; width: 160px; height: 600px;"
+	}
+};
+
+const config = type ? typeConfig[type] : { format, responsive: responsive.toString(), style };
+
 const publisherId = "ca-pub-4731944248276389";
 
 // Slots predefinidos para facilitar el uso
@@ -39,11 +60,11 @@ if (!adSlot) {
 
 <div class={`adsense-container ${className}`}>
 	<ins class="adsbygoogle"
-		 style={style}
+		 style={config.style}
 		 data-ad-client={publisherId}
 		 data-ad-slot={adSlot}
-		 data-ad-format={format}
-		 data-full-width-responsive={responsive}>
+		 data-ad-format={config.format}
+		 data-full-width-responsive={config.responsive}>
 	</ins>
 </div>
 
