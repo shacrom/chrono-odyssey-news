@@ -43,15 +43,35 @@ if (!adSlot) {
 		 data-ad-client={publisherId}
 		 data-ad-slot={adSlot}
 		 data-ad-format={format}
-		 data-full-width-responsive={responsive}>
+		 data-full-width-responsive={responsive}
+		 data-ad-test="on">
 	</ins>
+	
+	<!-- Debug info temporal -->
+	<div style="font-size: 10px; color: #666; margin-top: 5px;">
+		Debug: Slot {adSlot} | Client {publisherId} | Type: {type || 'custom'}
+	</div>
 </div>
 
 <script>
 	// Script que se ejecuta cuando se carga el componente
-	if (typeof window !== "undefined") {
-		((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-	}
+	document.addEventListener('DOMContentLoaded', function() {
+		// Esperar a que AdSense esté completamente cargado
+		setTimeout(function() {
+			try {
+				// @ts-ignore - AdSense global variable
+				if (typeof window.adsbygoogle !== 'undefined') {
+					// @ts-ignore
+					(window.adsbygoogle = window.adsbygoogle || []).push({});
+					console.log('AdSense banner initialized');
+				} else {
+					console.warn('AdSense script not loaded yet');
+				}
+			} catch (e) {
+				console.error('Error loading AdSense:', e);
+			}
+		}, 1000);
+	});
 </script>
 
 <style>
