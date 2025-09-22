@@ -5,6 +5,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
+import AdBanner from '../components/AdBanner.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
@@ -142,6 +143,24 @@ const recentNoticias = await fetchRecentNoticias();
 				overflow: hidden;
 			}
 			
+			/* Estilos para listas anidadas de Strapi */
+			.bb_ul {
+				list-style-type: disc;
+				margin-left: 1.5em;
+				padding-left: 1em;
+			}
+			.bb_ul .bb_ul {
+				list-style-type: circle;
+				margin-left: 1.5em;
+			}
+			.bb_ul .bb_ul .bb_ul {
+				list-style-type: square;
+				margin-left: 1.5em;
+			}
+			.bb_ul li {
+				margin-bottom: 0.3em;
+			}
+			
 			/* Responsive: ocultar sidebar en pantallas pequeñas */
 			@media (max-width: 1023px) {
 				main {
@@ -185,6 +204,12 @@ const recentNoticias = await fetchRecentNoticias();
 		<!-- Contenido principal con z-index superior -->
 		<div class="relative z-10">
 			<Header />
+			
+			<!-- Banner publicitario horizontal después del header -->
+			<div class="w-full max-w-6xl mx-auto px-4 py-4">
+				<AdBanner type="horizontal" className="horizontal" />
+			</div>
+			
 			<main class="flex justify-center max-w-none mx-auto px-4 gap-6">
 				<!-- Artículo principal -->
 				<article class="w-full max-w-4xl relative">
@@ -258,6 +283,11 @@ const recentNoticias = await fetchRecentNoticias();
 									</a>
 								))}
 							</div>
+						</div>
+						
+						<!-- Banner publicitario cuadrado en la sidebar -->
+						<div class="mt-6">
+							<AdBanner type="square" className="square" />
 						</div>
 					</div>
 				</aside>

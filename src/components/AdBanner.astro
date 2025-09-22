@@ -1,0 +1,82 @@
+---
+// Componente reutilizable para mostrar anuncios de Google AdSense
+// Uso: <AdBanner type="horizontal" /> o <AdBanner slot="1234567890" />
+
+interface Props {
+	type?: "horizontal" | "square" | "vertical"; // Tipos predefinidos
+	slot?: string; // ID del espacio publicitario específico (opcional si usas type)
+	format?: string; // Formato del anuncio (auto, rectangle, etc.)
+	responsive?: boolean; // Si es responsive o no
+	style?: string; // Estilos CSS adicionales
+	className?: string; // Clases CSS adicionales
+}
+
+const { 
+	type,
+	slot, 
+	format = "auto", 
+	responsive = true, 
+	style = "display:block", 
+	className = "" 
+} = Astro.props;
+
+const publisherId = "ca-pub-4731944248276389";
+
+// Slots predefinidos para facilitar el uso
+const adSlots = {
+	horizontal: "6691885792",
+	square: "5378804120", 
+	vertical: "3375457310"
+};
+
+// Determina el slot a usar (prioritario el prop slot, sino el tipo predefinido)
+const adSlot = slot || (type ? adSlots[type] : "");
+
+if (!adSlot) {
+	throw new Error("AdBanner: Debes proporcionar un 'type' (horizontal/square/vertical) o un 'slot' específico");
+}
+---
+
+<div class={`adsense-container ${className}`}>
+	<ins class="adsbygoogle"
+		 style={style}
+		 data-ad-client={publisherId}
+		 data-ad-slot={adSlot}
+		 data-ad-format={format}
+		 data-full-width-responsive={responsive}>
+	</ins>
+</div>
+
+<script>
+	// Script que se ejecuta cuando se carga el componente
+	if (typeof window !== "undefined") {
+		((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+	}
+</script>
+
+<style>
+	.adsense-container {
+		margin: 1rem 0;
+		text-align: center;
+	}
+	
+	/* Estilos para diferentes formatos comunes */
+	.adsense-container.horizontal {
+		max-width: 728px;
+		margin: 0 auto;
+	}
+	
+	.adsense-container.square {
+		max-width: 300px;
+		margin: 0 auto;
+	}
+	
+	.adsense-container.vertical {
+		max-width: 160px;
+		margin: 0 auto;
+	}
+	
+	.adsense-container.responsive {
+		width: 100%;
+	}
+</style>
